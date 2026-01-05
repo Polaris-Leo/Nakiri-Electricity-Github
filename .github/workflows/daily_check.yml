@@ -1,0 +1,71 @@
+name: Daily Electricity Check
+
+on:
+  schedule:
+    # 每小时运行一次 (第0分钟)
+    - cron: '0 * * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  scrape-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史，便于分析
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Run Scraper
+        id: scrape
+        env:
+          ROOM_ID: ${{ secrets.ROOM_ID }}
+          PART_ID: ${{ secrets.PART_ID }}
+          BUILD_ID: ${{ secrets.BUILD_ID }}
+        run: |
+          echo "Starting scraper..."
+          node scripts/scrape.js
+          echo "scrape_status=success" >> $GITHUB_OUTPUT
+        continue-on-error: false
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet public/data.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in data.json"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in data.json"
+          fi
+
+      - name: Commit and Push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update electricity data [skip ci]"
+          file_pattern: public/data.json
+          commit_user_name: GitHub Actions Bot
+          commit_user_email: actions@github.com
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::数据采集失败！请检查环境变量配置和网络连接。"
+          exit 1
