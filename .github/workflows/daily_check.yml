@@ -2,8 +2,8 @@ name: Daily Electricity Check
 
 on:
   schedule:
-    # 每小时运行一次 (第0分钟)
-    - cron: '0 * * * *'
+    # 每3小时运行一次 (0:00, 3:00, 6:00, ...)
+    - cron: '0 */3 * * *'
   workflow_dispatch: # 允许手动触发
 
 jobs:
