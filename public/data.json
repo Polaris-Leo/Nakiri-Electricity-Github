@@ -2,11 +2,16 @@
   "room_info": {
     "roomId": "507",
     "displayName": "徐汇-18号楼-507",
-    "updatedAt": "2026-01-05T18:41:07.997Z"
+    "updatedAt": "2026-01-05T21:12:59.970Z"
   },
   "history": [
     {
       "timestamp": "2026-01-05T18:41:07.997Z",
+      "room_id": "507",
+      "kWh": 43.5
+    },
+    {
+      "timestamp": "2026-01-05T21:12:59.970Z",
       "room_id": "507",
       "kWh": 43.5
     }
