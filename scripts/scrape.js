@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // --- 配置与常量 ---
 const DATA_FILE = path.join(__dirname, '../public/data.json');
@@ -58,10 +62,20 @@ function autoGenerateUrl() {
     let campusName = "", areaId = "";
     if (PART_ID === "0" || PART_ID === "奉贤") { campusName = "奉贤"; areaId = "2"; }
     else if (PART_ID === "1" || PART_ID === "徐汇") { campusName = "徐汇"; areaId = "3"; }
-    else return null;
+    else {
+        console.error(`[Config Error] Invalid PART_ID: ${PART_ID}. Must be '0'/'奉贤' or '1'/'徐汇'.`);
+        return null;
+    }
 
     let matchedBuildId = SPECIAL_NAMES[BUILD_ID] ? BUILDING_MAP[`${campusName}${SPECIAL_NAMES[BUILD_ID]}`] : (BUILDING_MAP[`${campusName}${BUILD_ID}号楼`] || BUILDING_MAP[`${campusName}${BUILD_ID}`]);
-    if (!matchedBuildId) return null;
+    
+    if (!matchedBuildId) {
+        console.error(`[Config Error] Could not find build ID in map.`);
+        console.error(`Campus: ${campusName}, Input Build: ${BUILD_ID}`);
+        console.error(`Please check if your building exists in the BUILDING_MAP in scripts/scrape.js`);
+        return null;
+    }
+    
     return `${BASE_URL}?sysid=1&roomid=${ROOM_ID}&areaid=${areaId}&buildid=${matchedBuildId}`;
 }
 
