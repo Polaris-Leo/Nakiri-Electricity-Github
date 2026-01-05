@@ -1,8 +1,14 @@
 {
   "room_info": {
-    "roomId": "Unknown",
-    "displayName": "Loading...",
-    "updatedAt": ""
+    "roomId": "507",
+    "displayName": "徐汇-18号楼-507",
+    "updatedAt": "2026-01-05T18:41:07.997Z"
   },
-  "history": []
+  "history": [
+    {
+      "timestamp": "2026-01-05T18:41:07.997Z",
+      "room_id": "507",
+      "kWh": 43.5
+    }
+  ]
 }
